@@ -1,0 +1,28 @@
+.PHONY: makelib testlib install clean
+
+.SUBDIRS: tests
+
+FILES = mltls
+LIB = mltls
+
+section
+   INCLUDES += $(shell $(OCAMLC) -where)
+   mltls_stub$(EXT_OBJ):
+
+section
+   CCLIB = $(StaticCLibrary libmltls_stub, mltls_stub)
+   OCAML_LIB_FLAGS += -cclib -lssl -cclib -lmltls_stub
+   OCAMLLIBS = $(OCamlLibrary $(LIB), $(FILES))
+   $(OCAMLLIBS): $(CCLIB)
+   .DEFAULT: $(LIB)$(EXT_LIB)
+
+open ../../config
+
+IFILES =
+
+LibInstall(makelib, $(LIB), $(IFILES))
+
+install: makelib
+
+clean:
+   $(CLEAN)

@@ -1,0 +1,19 @@
+.PHONY: testlib clean
+
+OCAMLINCLUDES += ..
+
+FILES = state_machine
+PROGRAM = state_machine
+
+OCAML_OTHER_LIBS += unix mltls
+#OCAML_LIBS = mltls
+
+# .DEFAULT: $(OCamlProgram $(PROGRAM), $(FILES))
+OCamlProgram($(PROGRAM), $(FILES))
+
+testlib: $(PROGRAM)$(EXE)
+
+open ../../../config
+
+clean:
+   $(CLEAN) $(PROGRAM)$(EXE)
