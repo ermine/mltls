@@ -43,6 +43,15 @@ external tls_SSL_CTX_use_PrivateKey_file: tls_SSL_CTX -> string ->
 external tls_SSL_new: tls_SSL_CTX -> tls_SSL
    = "camltls_SSL_new"
 
+external tls_SSL_set_fd: tls_SSL -> Unix.file_descr -> int
+   = "camltls_SSL_set_fd"
+
+external tls_SSL_set_rfd: tls_SSL -> Unix.file_descr -> int
+   = "camltls_SSL_set_rfd"
+
+external tls_SSL_set_wfd: tls_SSL -> Unix.file_descr -> int
+   = "camltls_SSL_set_wfd"
+
  external tls_BIO_new: unit -> tls_BIO
    = "camltls_BIO_new"
 
@@ -51,6 +60,9 @@ external tls_SSL_set_bio: tls_SSL -> tls_BIO -> tls_BIO -> unit
 
 external tls_SSL_set_accept_state: tls_SSL -> unit
    = "camltls_SSL_set_accept_state"
+
+external tls_SSL_set_connect_state: tls_SSL -> unit
+   = "camltls_SSL_set_connect_state"
 
 external tls_BIO_write: tls_BIO -> string -> int -> int
    = "camltls_BIO_write"
@@ -61,6 +73,11 @@ external tls_SSL_is_init_finished: tls_SSL -> bool
 external tls_SSL_accept: tls_SSL -> int
    = "camltls_SSL_accept"
 
+external tls_SSL_connect: tls_SSL -> int
+   = "camltls_SSL_connect"
+
+external tls_SSL_do_handshake: tls_SSL -> int
+   = "camltls_SSL_do_handshake"
 
 type ssl_error =
    | SSL_ERROR_NONE
@@ -112,14 +129,23 @@ external tls_BIO_pending: tls_BIO -> int
 external tls_BIO_read: tls_BIO -> string -> int -> int
    = "camltls_BIO_read"
 
+external tls_BIO_gets: tls_BIO -> string -> int -> int
+   = "camltls_BIO_gets"
+
 external tls_BIO_write: tls_BIO -> string -> int -> int
    = "camltls_BIO_write"
+
+external tls_BIO_puts: tls_BIO -> string -> int
+   = "camltls_BIO_puts"
 
 external  tls_SSL_CTX_check_private_key: tls_SSL_CTX -> int
    = "camltls_SSL_CTX_check_private_key"
 
 external tls_SSL_CTX_set_default_verify_paths: tls_SSL_CTX -> int
    = "camltls_SSL_CTX_set_default_verify_paths"
+
+external tls_SSL_get_peer_certificate: tls_SSL -> tls_X509
+   = "camltls_SSL_get_peer_certificate"
 
 type set_verify_mode =
    | SSL_VERIFY_NONE

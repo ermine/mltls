@@ -38,7 +38,7 @@ CAMLprim value camltls_ERR_error_string_n(value ve) {
 #define tls_SSLv23_client_method   11
 
 CAMLprim value camltls_SSL_CTX_new (value vmethod) {
-    SSL_METHOD* method;
+  SSL_METHOD* method;
   SSL_CTX* ssl_ctx;
   value vres;
 
@@ -125,6 +125,21 @@ CAMLprim value camltls_SSL_new(value v) {
   return vres;
 }
 
+CAMLprim value camltls_SSL_set_fd(value vssl, value vfd) {
+  int ret = SSL_set_fd(SSL_Val(vssl), Int_val(vfd));
+  return Val_int(ret);
+}
+
+CAMLprim value camltls_SSL_set_rfd(value vssl, value vfd) {
+  int ret = SSL_set_rfd(SSL_Val(vssl), Int_val(vfd));
+  return Val_int(ret);
+}
+
+CAMLprim value camltls_SSL_set_wfd(value vssl, value vfd) {
+  int ret = SSL_set_wfd(SSL_Val(vssl), Int_val(vfd));
+  return Val_int(ret);
+}
+
 CAMLprim value camltls_BIO_new(value unit) {
   BIO* bio = BIO_new(BIO_s_mem());
   value vres = alloc_small(1, Abstract_tag);
@@ -142,6 +157,11 @@ CAMLprim value camltls_SSL_set_accept_state(value vssl) {
   return Val_unit;
 }
 
+CAMLprim value camltls_SSL_set_connect_state(value vssl) {
+  SSL_set_connect_state(SSL_Val(vssl));
+  return Val_unit;
+}
+
 CAMLprim value camltls_SSL_is_init_finished(value vssl) {
   int ret = SSL_is_init_finished(SSL_Val(vssl));
   return Val_bool(ret);
@@ -150,6 +170,16 @@ CAMLprim value camltls_SSL_is_init_finished(value vssl) {
 CAMLprim value camltls_SSL_accept(value vssl) {
   int ret = SSL_accept(SSL_Val(vssl));
   return Val_int(ret);
+}
+
+CAMLprim value camltls_SSL_connect(value vssl) {
+  int ret = SSL_connect(SSL_Val(vssl));
+  return Val_int(ret);
+}
+
+CAMLprim camltls_SSL_do_handshake(value vssl) {
+  int ret = SSL_do_handshake(SSL_Val(vssl));
+  return Val_bool(ret);
 }
 
 CAMLprim value camltls_SSL_get_error(value vssl, value vret) {
@@ -204,8 +234,29 @@ CAMLprim value camltls_BIO_write(value vbio, value vbuf, value vlen) {
   return Val_int(ret);
 }
 
+CAMLprim value camltls_BIO_puts(value vbio, value vbuf) {
+  char* buf;
+  int len;
+  int ret;
+
+  len = string_length(buf);
+  if (len == 0) {
+    buf = NULL;
+  } else {
+    buf = stat_alloc(len + 1);
+    strcpy(buf, String_val(vbuf));
+  }
+  ret = BIO_puts(BIO_Val(vbio), buf);
+  return Val_int(ret);
+}
+
 CAMLprim value camltls_BIO_read(value vbio, value vbuf, value vlen) {
   int ret = BIO_read(BIO_Val(vbio), String_val(vbuf), Int_val(vlen));
+  return Val_int(ret);
+}
+
+CAMLprim value camltls_BIO_gets(value vbio, value vbuf, value vlen) {
+  int ret = BIO_gets(BIO_Val(vbio), String_val(vbuf), Int_val(vlen));
   return Val_int(ret);
 }
 
@@ -218,6 +269,17 @@ CAMLprim value camltls_SSL_CTX_set_default_verify_paths(value vctx) {
   int ret = SSL_CTX_set_default_verify_paths(SSL_CTX_Val(vctx));
   return Val_int(ret);
 }
+
+CAMLprim value camltls_SSL_get_peer_certificate(value vssl) {
+  value vres;
+  X509* cert;
+
+  cert = SSL_get_peer_certificate(SSL_Val(vssl));
+  vres = alloc_small(1, Abstract_tag);
+  X509_Val(vres) = cert;
+  return vres;
+}
+
 
 /* use either SSL_VERIFY_NONE or SSL_VERIFY_PEER, the last 2 options
  * are 'ored' with SSL_VERIFY_PEER if they are desired */
