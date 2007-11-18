@@ -9,8 +9,10 @@ section
    INCLUDES += $(shell $(OCAMLC) -where)
    mltls_stub$(EXT_OBJ):
 
+CLIBNAME = libtls_stub
+
 section
-   CCLIB = $(StaticCLibrary libmltls_stub, mltls_stub)
+   CCLIB = $(StaticCLibrary $(CLIBNAME), mltls_stub)
    OCAML_LIB_FLAGS += -cclib -lssl -cclib -lmltls_stub
    OCAMLLIBS = $(OCamlLibrary $(LIB), $(FILES))
    $(OCAMLLIBS): $(CCLIB)
@@ -18,9 +20,12 @@ section
 
 open ../../config
 
-IFILES =
+IFILES[] =
+   mltls
 
-LibInstall(makelib, $(LIB), $(IFILES))
+ALIBS[] = $(CLIBNAME)$(EXT_LIB)
+
+LibInstall(makelib, $(LIB), $(IFILES), $(ALIBS))
 
 install: makelib
 
