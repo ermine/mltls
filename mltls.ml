@@ -1,3 +1,7 @@
+(*
+ * (c) 2006-2008 Anastasia Gornostaeva <ermine@ermine.pp.ru>
+ *)
+
 type tls_SSL
 type tls_SSL_CTX
 type tls_BIO
@@ -161,3 +165,9 @@ external tls_SSL_CTX_set_verify: tls_SSL_CTX -> set_verify_mode list ->
 
 external tls_SSL_get_verify_result: tls_SSL -> int
    = "camltls_SSL_get_verify_result"
+
+let _ =
+   tls_SSL_library_init();
+   tls_OpenSSL_add_ssl_algorithms();
+   tls_SSL_load_error_strings();
+   tls_ERR_load_crypto_strings()

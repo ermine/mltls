@@ -7,6 +7,7 @@ PROGRAM = state_machine
 
 OCAML_OTHER_LIBS += unix mltls
 #OCAML_LIBS = mltls
+OCAML_LINK_FLAGS = -linkall
 
 # .DEFAULT: $(OCamlProgram $(PROGRAM), $(FILES))
 OCamlProgram($(PROGRAM), $(FILES))

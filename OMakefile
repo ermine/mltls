@@ -9,7 +9,7 @@ section
    INCLUDES += $(shell $(OCAMLC) -where)
    mltls_stub$(EXT_OBJ):
 
-CLIBNAME = libtls_stub
+CLIBNAME = libmltls_stub
 
 section
    CCLIB = $(StaticCLibrary $(CLIBNAME), mltls_stub)

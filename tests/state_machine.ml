@@ -168,7 +168,7 @@ let ssl_state_machine_write_extract machine aucBuf nBuf =
 let ssl_state_machine_write_inject machine aucBuf nBuf =
    let n = tls_SSL_write machine.ssl aucBuf 0 nBuf in
       (* If it turns out this assert fails, then buffer the data here
-       * and just feed it in in churn instead. Seems to me that it
+       * and just feed it in churn instead. Seems to me that it
        * should be guaranteed to succeed, though.
        *)
       eprintf "%d bytes of unencrypted data fed to state machine: [%s]\n" 
@@ -207,12 +207,14 @@ let main () =
    let port = int_of_string Sys.argv.(1) in
    let certificate_file = Sys.argv.(2) in
 
+(*
    let () =
       tls_SSL_library_init();
       tls_OpenSSL_add_ssl_algorithms();
       tls_SSL_load_error_strings();
       tls_ERR_load_crypto_strings();
    in
+*)
    let fd = openSocket port in
    let machine = ssl_state_machine_new certificate_file in
 
