@@ -33,10 +33,6 @@ type ssl_state_machine = {
    ssl: tls_SSL
 } (* SSLStateMachine *)
 
-(* die_unless is intended to work like assert, except that it happens
-   always, even if NDEBUG is defined. Use assert as a stopgap. *)
-let die_unless x = assert x
-
 let ssl_state_machine_print_error machine err =
    eprintf "%s\n" err;
    flush Pervasives.stderr;
@@ -57,20 +53,20 @@ let ssl_state_machine_new certificate =
    let () =
       let n = tls_SSL_CTX_use_certificate_file ctx 
 	 certificate SSL_FILETYPE_PEM in
-	 die_unless (n > 0)
+	 assert (n > 0)
    in
    let () =
       let n = tls_SSL_CTX_use_PrivateKey_file ctx 
 	 certificate SSL_FILETYPE_PEM in
-	 die_unless (n > 0)
+	 assert (n > 0)
    in
    let () =
       let n = tls_SSL_CTX_check_private_key ctx in
-	 die_unless (n > 0)
+	 assert (n > 0)
    in
    let () =
       let n = tls_SSL_CTX_set_default_verify_paths ctx in
-	 die_unless (n > 0)
+	 assert (n > 0)
    in
    let () =
       let verify_callback (preverify_ok:int) 
@@ -96,7 +92,7 @@ let ssl_state_machine_new certificate =
       }
 
 let ssl_state_machine_read_inject machine aucBuf nBuf =
-   let n = tls_BIO_write machine.rbio aucBuf nBuf in
+   let n = tls_BIO_write machine.rbio aucBuf 0 nBuf in
       (* If it turns out this assert fails, then buffer the data here
        * and just feed it in in churn instead. Seems to me that it
        * should be guaranteed to succeed, though.
@@ -160,7 +156,7 @@ let ssl_state_machine_write_can_extract machine =
       n <> 0
 
 let ssl_state_machine_write_extract machine aucBuf nBuf =
-   let n = tls_BIO_read machine.wbio aucBuf nBuf in
+   let n = tls_BIO_read machine.wbio aucBuf 0 nBuf in
       eprintf "%d bytes of encrypted data read from state machine\n" n;
       flush Pervasives.stderr;
       n

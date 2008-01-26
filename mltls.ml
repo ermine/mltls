@@ -2,11 +2,16 @@
  * (c) 2006-2008 Anastasia Gornostaeva <ermine@ermine.pp.ru>
  *)
 
+exception Error of string * string
+
 type tls_SSL
 type tls_SSL_CTX
 type tls_BIO
 type tls_X509
 type tls_X509_STORE_CTX
+
+external tls_ERR_load_crypto_strings: unit -> unit
+   = "camltls_ERR_load_crypto_strings"
 
 external tls_ERR_get_error: unit -> int32
    = "camltls_ERR_get_error"
@@ -56,9 +61,6 @@ external tls_SSL_set_rfd: tls_SSL -> Unix.file_descr -> int
 external tls_SSL_set_wfd: tls_SSL -> Unix.file_descr -> int
    = "camltls_SSL_set_wfd"
 
- external tls_BIO_new: unit -> tls_BIO
-   = "camltls_BIO_new"
-
 external tls_SSL_set_bio: tls_SSL -> tls_BIO -> tls_BIO -> unit
    = "camltls_SSL_set_bio"
 
@@ -67,9 +69,6 @@ external tls_SSL_set_accept_state: tls_SSL -> unit
 
 external tls_SSL_set_connect_state: tls_SSL -> unit
    = "camltls_SSL_set_connect_state"
-
-external tls_BIO_write: tls_BIO -> string -> int -> int
-   = "camltls_BIO_write"
 
 external tls_SSL_is_init_finished: tls_SSL -> bool
    = "camltls_SSL_is_init_finished"
@@ -109,38 +108,25 @@ let string_of_ssl_error = function
 external tls_SSL_get_error: tls_SSL -> int -> ssl_error
    = "camltls_SSL_get_error"
 
-external tls_SSL_library_init: unit -> unit
-   = "camltls_SSL_library_init"
-
-external tls_OpenSSL_add_ssl_algorithms: unit -> unit
-   = "camltls_OpenSSL_add_ssl_algorithms"
-
-external tls_SSL_load_error_strings: unit -> unit
-   = "camltls_SSL_load_error_strings"
-
-external tls_ERR_load_crypto_strings: unit -> unit
-   = "camltls_ERR_load_crypto_strings"
-
 external tls_SSL_read: tls_SSL -> string -> int -> int -> int
    = "camltls_SSL_read"
 
 external tls_SSL_write: tls_SSL -> string -> int -> int -> int
    = "camltls_SSL_write"
 
-external tls_BIO_pending: tls_BIO -> int
-   = "camltls_BIO_pending"
+external tls_SSL_shutdown: tls_SSL -> int
+   = "camltls_SSL_shutdown"
 
-external tls_BIO_read: tls_BIO -> string -> int -> int
-   = "camltls_BIO_read"
+external tls_SSL_get_shutdown: tls_SSL -> bool * bool
+   = "camltls_SSL_get_shutdown"
 
-external tls_BIO_gets: tls_BIO -> string -> int -> int
-   = "camltls_BIO_gets"
+(*
+external tls_SSL_set_shutdown: tls_SSL ->
+   = "camltls_SSL_set_shutdown"
+*)
 
-external tls_BIO_write: tls_BIO -> string -> int -> int
-   = "camltls_BIO_write"
-
-external tls_BIO_puts: tls_BIO -> string -> int
-   = "camltls_BIO_puts"
+external tls_SSL_clear: tls_SSL -> int
+   = "camltls_SSL_clear"
 
 external  tls_SSL_CTX_check_private_key: tls_SSL_CTX -> int
    = "camltls_SSL_CTX_check_private_key"
@@ -166,8 +152,21 @@ external tls_SSL_CTX_set_verify: tls_SSL_CTX -> set_verify_mode list ->
 external tls_SSL_get_verify_result: tls_SSL -> int
    = "camltls_SSL_get_verify_result"
 
+external tls_BIO_new : unit -> tls_BIO
+  = "camltls_BIO_new"
+
+external tls_BIO_pending : tls_BIO -> int 
+  = "camltls_BIO_pending"
+
+external tls_BIO_read : tls_BIO -> string -> int -> int -> int
+  = "camltls_BIO_read"
+
+external tls_BIO_write : tls_BIO -> string -> int -> int -> int
+  = "camltls_BIO_write"
+
+external mltls_init: unit -> unit
+   = "camltls_init"
+
 let _ =
-   tls_SSL_library_init();
-   tls_OpenSSL_add_ssl_algorithms();
-   tls_SSL_load_error_strings();
-   tls_ERR_load_crypto_strings()
+   Callback.register_exception "Mltls_Error" (Error ("", ""));
+   mltls_init ()
