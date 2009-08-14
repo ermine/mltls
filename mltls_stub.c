@@ -1,5 +1,5 @@
 /*
- * (c) 2007-2008 Anastasia Gornostaeva <ermine@ermine.pp.ru>
+ * (c) 2007-2009 Anastasia Gornostaeva <ermine@ermine.pp.ru>
  */
 
 #include <caml/alloc.h>
@@ -176,7 +176,6 @@ CAMLprim value camltls_SSL_CTX_new (value vmethod) {
 }
 
 static int get_file_type(value vtype) {
-  CAMLparam1(vtype);
   switch(Int_val(vtype)) {
   case 0: return SSL_FILETYPE_PEM;
   case 1: return SSL_FILETYPE_ASN1;
@@ -331,7 +330,7 @@ CAMLprim value camltls_SSL_connect(value vssl) {
   CAMLreturn(vres);
 }
 
-CAMLprim camltls_SSL_do_handshake(value vssl) {
+CAMLprim value camltls_SSL_do_handshake(value vssl) {
   CAMLparam1(vssl);
   CAMLlocal1(vres);
   SSL* ssl = SSL_Val(vssl);
@@ -396,7 +395,7 @@ CAMLprim value camltls_SSL_write(value vssl,
   CAMLreturn(vres);
 }
 
-CAMLprim camltls_SSL_shutdown(value vssl) {
+CAMLprim value camltls_SSL_shutdown(value vssl) {
   CAMLparam1(vssl);
   CAMLlocal1(vres);
   SSL* ssl = SSL_Val(vssl);
@@ -408,14 +407,14 @@ CAMLprim camltls_SSL_shutdown(value vssl) {
   CAMLreturn(vres);
 }
 
-CAMLprim camltls_SSL_get_shutdown(value vssl) {
+CAMLprim value camltls_SSL_get_shutdown(value vssl) {
   CAMLparam1(vssl);
   CAMLlocal3(vres, recv, sent);
   SSL* ssl = SSL_Val(vssl);
   int ret;
   caml_enter_blocking_section();
   ret = SSL_get_shutdown(ssl);
-  caml_leave_blocking_section;
+  caml_leave_blocking_section();
   recv = Val_bool(ret & SSL_RECEIVED_SHUTDOWN);
   sent = Val_bool(ret & SSL_SENT_SHUTDOWN);
   vres = alloc_tuple(2);
@@ -425,7 +424,7 @@ CAMLprim camltls_SSL_get_shutdown(value vssl) {
 }
 
 /*
-CAMLprim camltls_SSL_set_shutdown(value vssl, value vmode) {
+CAMLprim value camltls_SSL_set_shutdown(value vssl, value vmode) {
   CAMLparam2(vssl, vmode);
   CAMLlocal1(vres);
   SSL* ssl = SSL_Val(vssl);
@@ -438,7 +437,7 @@ CAMLprim camltls_SSL_set_shutdown(value vssl, value vmode) {
 }
 */
 
-CAMLprim camltls_SSL_clear(value vssl) {
+CAMLprim value camltls_SSL_clear(value vssl) {
   CAMLparam1(vssl);
   SSL* ssl = SSL_Val(vssl);
   caml_enter_blocking_section();
@@ -494,7 +493,7 @@ static int verify_mode_table[] = {
 };
 
 CAMLprim value camltls_SSL_CTX_set_verify(value vctx, value vmode,
-					  value vcallback) {
+                                          value vcallback) {
   CAMLparam3(vctx, vmode, vcallback);
   SSL_CTX* ssl_ctx = SSL_CTX_Val(vctx);
   int mode = convert_flag_list(vmode, verify_mode_table);
@@ -506,7 +505,7 @@ CAMLprim value camltls_SSL_CTX_set_verify(value vctx, value vmode,
   CAMLreturn0;
 }
 
-CAMLprim camltls_SSL_get_verify_result(value vssl) {
+CAMLprim value camltls_SSL_get_verify_result(value vssl) {
   CAMLparam1(vssl);
   CAMLlocal1(vres);
   SSL* ssl = SSL_Val(vssl);

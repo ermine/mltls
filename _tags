@@ -1,5 +1,5 @@
 <*.c>: include_tls_clib
 "libmltls.a": use_tls_clib
 <mltls.cm{x,}a>: use_tls_clib, use_libmltls
-<tests/state_machine.{byte,native}>: use_mltls, use_unix
+<state_machine.{byte,native}>: use_mltls, use_unix
 
