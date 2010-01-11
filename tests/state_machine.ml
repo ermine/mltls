@@ -47,7 +47,7 @@ let ssl_state_machine_print_error err =
 
 
 let ssl_state_machine_new certificate =
-  mltls_init ();
+  tls_init ();
   let ctx = tls_SSL_CTX_new SSLv23_method in
   let () =
     let n = tls_SSL_CTX_use_certificate_file ctx certificate SSL_FILETYPE_PEM in

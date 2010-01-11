@@ -22,6 +22,8 @@
 #define X509_val(v)            (*((X509 **) &Field(v, 0)))
 #define RSA_val(v)             (*((RSA **) &Field(v, 0)))
 
+#define X509_STORE_CTX_val(v)  (*((X509_STORE_CTX **) &Field(v, 0)))
+
 static void finalize_ssl(value block) {
   SSL* ssl = SSL_val(block);
   printf("ssl finalized\n");
@@ -264,7 +266,7 @@ CAMLprim value ml_SSL_read(value vssl,
   caml_enter_blocking_section();
   ret = SSL_read(SSL_val(vssl), tmpbuf, len);
   caml_leave_blocking_section();
-  memcpy(&Byte(vbuf, voffs), tmpbuf, ret);
+  memcpy(&Byte(vbuf, offs), tmpbuf, ret);
   caml_stat_free(tmpbuf);
   return Val_int(ret);
 }
@@ -342,11 +344,14 @@ static int tbl_verify_mode[] = {
 CAMLprim value ml_SSL_CTX_set_verify(value vctx, value vmode,
                                           value vcallback) {
   CAMLparam3(vctx, vmode, vcallback);
-  SSL_CTX* ssl_ctx = SSL_CTX_val(vctx);
   int mode = caml_convert_flag_list(vmode, tbl_verify_mode);
-  int (*callback)(int, X509_STORE_CTX*) = 
-    (int(*) (int, X509_STORE_CTX*))Field(vcallback, 0);
-  SSL_CTX_set_verify(ssl_ctx, mode, callback);
+  int (*callback_verify)(int, X509_STORE_CTX*) = NULL;
+
+  if(Is_block(vcallback))
+    callback_verify = (int(*) (int, X509_STORE_CTX*))Field(vcallback, 0);
+  caml_enter_blocking_section();
+  SSL_CTX_set_verify(SSL_CTX_val(vctx), mode, callback_verify);
+  caml_leave_blocking_section();
   CAMLreturn(Val_unit);
 }
 
