@@ -5,7 +5,6 @@
  *
  * See http://www.nuron.com/.
  */
-
  * /*
  * the aim of this demo is to provide a fully working state-machine
  * style SSL implementation, i.e. one where the main loop acquires
@@ -33,14 +32,13 @@ type ssl_state_machine = {
   ssl: tls_SSL
 } (* SSLStateMachine *)
 
-let ssl_state_machine_print_error _machine err =
+let ssl_state_machine_print_error err =
   eprintf "%s\n" err;
   flush Pervasives.stderr;
-
   let rec aux_while () =
     let l = tls_ERR_get_error () in
 	    if l <> Int32.zero then
-	      let str = tls_ERR_error_string_n l in
+	      let str = tls_ERR_error_string l in
 	        eprintf "Error %lx: %s\n" l str;
 	        flush Pervasives.stderr;
 	        aux_while ()
@@ -49,15 +47,18 @@ let ssl_state_machine_print_error _machine err =
 
 
 let ssl_state_machine_new certificate =
+  mltls_init ();
   let ctx = tls_SSL_CTX_new SSLv23_method in
   let () =
-    let n = tls_SSL_CTX_use_certificate_file ctx 
-	    certificate SSL_FILETYPE_PEM in
+    let n = tls_SSL_CTX_use_certificate_file ctx certificate SSL_FILETYPE_PEM in
+      if n <> 1 then
+        ssl_state_machine_print_error "SSL_CTX_use_certificate_file";
 	    assert (n > 0)
   in
   let () =
-    let n = tls_SSL_CTX_use_PrivateKey_file ctx 
-	    certificate SSL_FILETYPE_PEM in
+    let n = tls_SSL_CTX_use_PrivateKey_file ctx certificate SSL_FILETYPE_PEM in
+      if n <> 1 then
+        ssl_state_machine_print_error "SSL_CTX_use_PrivateKey_file";
 	    assert (n > 0)
   in
   let () =
@@ -101,57 +102,53 @@ let ssl_state_machine_read_inject machine aucBuf nBuf =
     flush Pervasives.stderr
 
 let ssl_state_machine_read_extract machine aucBuf nOffs nBuf =
-  if not (tls_SSL_is_init_finished machine.ssl) then begin
+  if not (tls_SSL_is_init_finished machine.ssl) then (
     eprintf "Doing SSL_accept\n";
     flush Pervasives.stderr;
     let n = tls_SSL_accept machine.ssl in
-	    if(n = 0) then begin
+	    if(n = 0) then (
         eprintf "SSL_accept returned zero\n";
 	      flush Pervasives.stderr;
-	    end;
+	    );
 	    if n < 0 then 
-	      if tls_SSL_get_error machine.ssl n = SSL_ERROR_WANT_READ then begin
+	      if tls_SSL_get_error machine.ssl n = SSL_ERROR_WANT_READ then (
           eprintf "SSL_accept wants more data\n";
 	        flush Pervasives.stderr;
-	      end
-	      else begin
-	        ssl_state_machine_print_error machine "SSL_accept error";
+	      ) else (
+	        ssl_state_machine_print_error "SSL_accept error";
           Pervasives.exit(7);
-	      end;
+	      );
 	    0
-  end
-  else begin
+  ) else (
     let n = tls_SSL_read machine.ssl aucBuf nOffs nBuf in
     let n' =
-	    if n < 0 then begin
-	      if tls_SSL_get_error machine.ssl n = SSL_ERROR_WANT_READ then begin
+	    if n < 0 then (
+	      if tls_SSL_get_error machine.ssl n = SSL_ERROR_WANT_READ then (
 	        eprintf "SSL_read wants more data\n";
 	        flush Pervasives.stderr;
 	        0
-	      end
-	      else begin
-	        ssl_state_machine_print_error machine "SSL_read error";
+	      ) else (
+	        ssl_state_machine_print_error "SSL_read error";
 	        Pervasives.exit(8);
-	      end
-	    end
+	      )
+	    )
 	    else
 	      n
     in 
 	    eprintf "%d bytes of decrypted data read from state machine\n" n';
 	    flush Pervasives.stderr;
 	    n'
-  end
+  )
 
 let ssl_state_machine_write_can_extract machine =
   let n = tls_BIO_pending machine.wbio in
-    if n > 0 then begin
+    if n > 0 then (
 	    eprintf "There is encrypted data available to write\n";
 	    flush Pervasives.stderr;
-    end
-    else begin
+    ) else (
 	    eprintf "There is no encrypted data available to write\n";
 	    flush Pervasives.stderr;
-    end;
+    );
     n <> 0
 
 let ssl_state_machine_write_extract machine aucBuf nBuf =
@@ -193,112 +190,97 @@ let openSocket port =
 exception Break
 
 let main () =
-  if Array.length Sys.argv <> 3 then begin
+  if Array.length Sys.argv <> 3 then (
     eprintf "%s <port> <certificate file>\n" Sys.argv.(0);
     flush Pervasives.stderr;
     Pervasives.exit 6;
-  end;
-
+  );
+  
   let port = int_of_string Sys.argv.(1) in
   let certificate_file = Sys.argv.(2) in
-
-  (*
-    let () =
-    tls_SSL_library_init();
-    tls_OpenSSL_add_ssl_algorithms();
-    tls_SSL_load_error_strings();
-    tls_ERR_load_crypto_strings();
-    in
-  *)
   let fd = openSocket port in
   let machine = ssl_state_machine_new certificate_file in
-
+    
   let rbuf = String.create 1 in
   let nrbuf = ref 0 in
-
+    
     while true do
 	    let in_fds = ref [] in
 	    let out_fds = ref [] in
 	    let buf = String.create 1024 in
-	      
 	      (* Select socket for input *)
 	      in_fds := fd :: !in_fds;
-
 	      (* check whether there's decrypted data *)
 	      if !nrbuf = 0 then
           nrbuf := ssl_state_machine_read_extract machine rbuf 0 1;
-	      
 	      (* if there's decrypted data, check whether we can write it *)
 	      if !nrbuf <> 0 then
 	        out_fds := stdout :: !out_fds;
-
 	      (* Select socket for output *)
 	      if ssl_state_machine_write_can_extract machine then
 	        out_fds := fd :: !out_fds;
-
 	      (* Select stdin for input *)
 	      in_fds := stdin :: !in_fds;
-	      
 	      (* Wait for something to do something *)
 	      let fd_isset = List.mem in
 	      let in_fds, out_fds, _ = Unix.select !in_fds !out_fds [] (-1.0) in
-
 	        (* Socket is ready for input *)
-	        if fd_isset fd in_fds then begin
+	        if fd_isset fd in_fds then (
+            printf "Socket is ready for input\n";
+            flush Pervasives.stdout;
 		        let n = Unix.read fd buf 0 1024 in
-		          if n = 0 then begin
+		          if n = 0 then (
 			          eprintf "Got EOF on socket\n";
 			          flush Pervasives.stderr;
 			          Pervasives.exit 0;
-		          end;
+		          );
 		          assert(n > 0);
 		          ssl_state_machine_read_inject machine buf n;
-	        end;
+	        );
 
 	        (* stdout is ready for output (and hence we have some to 
 		         send it) *)
-	        if fd_isset stdout out_fds then begin
+	        if fd_isset stdout out_fds then (
 		        assert (!nrbuf = 1);
 		        buf.[0] <- rbuf.[0];
 		        nrbuf := 0;
-
+            
 		        let n = ssl_state_machine_read_extract machine buf 1 1023 in
-		          if n < 0 then begin
-			          ssl_state_machine_print_error machine 
-			            "read extract failed";
+		          if n < 0 then (
+			          ssl_state_machine_print_error "read extract failed";
 			          raise Break;
-		          end;
+		          );
 		          assert(n >= 0);
-		          if (n+1) > 0 then begin (* FIXME: has to be true now *)
+		          if (n+1) > 0 then ( (* FIXME: has to be true now *)
 			          let w = write stdout buf 0 (n+1) in
 			            (* FIXME: we should push back any unwritten data *)
 			            assert (w = (n+1));
-		          end
-	        end;
+		          )
+          );
 	        
 	        (* Socket is ready for output (and 
 		         therefore we have output to send) *)
-	        if fd_isset fd out_fds then begin
+	        if fd_isset fd out_fds then (
 		        let n = ssl_state_machine_write_extract machine buf 1024 in
 		          assert (n > 0);
 		          
 		          let w = write fd buf 0 n in
 			          (* FIXME: we should push back any unwritten data *)
 			          assert (w = n);
-	        end;
+	        );
 	        
 	        (* Stdin is ready for input *)
-	        if fd_isset stdin in_fds then begin
+	        if fd_isset stdin in_fds then (
 		        let n = read stdin buf 0 1024 in
-		          if n = 0 then begin
+		          if n = 0 then (
 			          eprintf "Got EOF on stdin\n";
 			          flush Pervasives.stderr;
 			          Pervasives.exit 0
-		          end;
+		          );
 		          assert(n > 0);
 		          ssl_state_machine_write_inject machine buf n;
-	        end
+	        )
     done
-	    
+
 
 let _ = main ()
