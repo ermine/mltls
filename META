@@ -1,0 +1,9 @@
+# OASIS_START
+# DO NOT EDIT (digest: a598c85ef038ecf074ed25384db2b786)
+version = "0.1"
+description = "OCaml bindings to SSL/TLS"
+archive(byte) = "mltls.cma"
+archive(native) = "mltls.cmxa"
+exists_if = "mltls.cma"
+# OASIS_STOP
+

@@ -1,5 +1,16 @@
-true: debug
-"libmltls.a": use_mltls_clib
-<mltls.cm{x,}a>: use_mltls_clib, use_libmltls
-<tests/state_machine.{byte,native}>: use_mltls, use_unix
-
+# OASIS_START
+# DO NOT EDIT (digest: 8f8f475683a40b8104b7bebea62c7a2f)
+# Library mltls
+<mltls.{cma,cmxa}>: oasis_library_mltls_cclib
+"libmltls.lib": oasis_library_mltls_cclib
+"dllmltls.dll": oasis_library_mltls_cclib
+"libmltls.a": oasis_library_mltls_cclib
+"dllmltls.so": oasis_library_mltls_cclib
+<mltls.{cma,cmxa}>: use_libmltls
+# Executable test
+<tests/state_machine.{native,byte}>: use_mltls
+<tests/state_machine.{native,byte}>: pkg_unix
+<tests/*.ml{,i}>: use_mltls
+<tests/*.ml{,i}>: pkg_unix
+<tests/state_machine.{native,byte}>: custom
+# OASIS_STOP

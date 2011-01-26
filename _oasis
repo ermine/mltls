@@ -1,0 +1,42 @@
+OASISFormat: 0.2
+Name:        mltls
+Version:     0.1
+Authors:     Anastasia Gornostaeva
+Copyrights:  (C) 2006 Anastasia Gornostaeva
+License:     BSD3
+LicenseFile: LICENCE
+Plugins:     DevFiles (0.2), META (0.2)
+BuildTools:  ocamlbuild
+
+Synopsis:    OCaml bindings to SSL/TLS
+Description:
+  Bindings to OpenSSL library.
+
+Library mltls
+  Path:       .
+  Modules:    Mltls
+  CSources:   mltls_stub.c, wrapper.h
+  CClib:      -lssl
+
+# [FORGE#860]
+Executable test
+  Path: tests/
+  Install: false
+  Custom: true # [FORGE#834]
+  CompiledObject: best
+  MainIs: state_machine.ml
+  BuildDepends: mltls, unix
+
+Document api
+  Title:      API reference
+  InstallDir: $docdir
+  Type: ocamlbuild (0.2)
+  BuildTools: ocamldoc
+  XOcamlbuildPath: .
+  XOcamlbuildLibraries: mltls
+
+SourceRepository github
+  Type:     git
+  Location: git://github.com/ermine/mltls.git
+  Browser:  https://github.com/ermine/mltls
+
