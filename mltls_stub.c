@@ -26,7 +26,6 @@
 
 static void finalize_ssl(value block) {
   SSL* ssl = SSL_val(block);
-  printf("ssl finalized\n");
   SSL_free(ssl);
 }
 
@@ -41,7 +40,6 @@ static struct custom_operations ssl_ops = {
 
 static void finalize_ssl_ctx(value block) {
   SSL_CTX* ssl_ctx = SSL_CTX_val(block);
-  printf("ssl_ctx finalized\n");
   SSL_CTX_free(ssl_ctx);
 }
 
@@ -56,7 +54,6 @@ static struct custom_operations ssl_ctx_ops = {
 
 static void finalize_bio(value block) {
   BIO* bio = BIO_val(block);
-  printf("bio finalized\n");
   BIO_free(bio);
 }
 
@@ -88,17 +85,16 @@ CAMLprim value ml_init(value unit) {
 }
 
 static void mltls_error(char* fn, char* msg) {
-  value res;
+  CAMLparam0();
+  CAMLlocalN(vargs, 2);
   if (mltls_error_exn == NULL)
     caml_invalid_argument("Exception Mltls_Error is not initialized");
-
   if (msg == NULL)
     msg = "";
-  res = caml_alloc(3, 0);
-  Store_field(res, 0, *mltls_error_exn);
-  Store_field(res, 1, copy_string(fn));
-  Store_field(res, 2, copy_string(msg));
-  mlraise(res);
+  vargs[0] = caml_copy_string(fn);
+  vargs[1] = caml_copy_string(msg);
+  caml_raise_with_args(*mltls_error_exn, 2, vargs);
+  CAMLreturn0;
 }
 
 CAMLprim value ml_ERR_load_crypto_strings(value unit) {
@@ -107,39 +103,54 @@ CAMLprim value ml_ERR_load_crypto_strings(value unit) {
 }
 
 CAMLprim value ml_ERR_get_error(value unit) {
-  return caml_copy_int32(ERR_get_error());
+  CAMLparam1(unit);
+  CAMLreturn(caml_copy_int32(ERR_get_error()));
 }
 
 CAMLprim value ml_ERR_error_string(value ve) {
+  CAMLparam1(ve);
   char* err = ERR_error_string(Unsigned_long_val(ve), NULL);
-  return caml_copy_string(err);
+  CAMLreturn(caml_copy_string(err));
 }
 
 CAMLprim value ml_ERR_error_string_n(value ve) {
+  CAMLparam1(ve);
   char err[200];
   ERR_error_string_n(Unsigned_long_val(ve), err, sizeof(err));
-  return caml_copy_string(err);
+  CAMLreturn(caml_copy_string(err));
 }
 
 CAMLprim value ml_ERR_lib_error_string(value ve) {
+  CAMLparam1(ve);
+  CAMLlocal1(vres);
   const char* err = ERR_lib_error_string(Unsigned_long_val(ve));
   if(err == NULL)
-    return caml_copy_string("");
-  return caml_copy_string(err);
+    vres = caml_copy_string("");
+  else
+    vres = caml_copy_string(err);
+  CAMLreturn(vres);
 }
 
 CAMLprim value ml_ERR_func_error_string(value ve) {
+  CAMLparam1(ve);
+  CAMLlocal1(vres);
   const char* err = ERR_func_error_string(Unsigned_long_val(ve));
   if(err == NULL)
-    return caml_copy_string("");
-  return caml_copy_string(err);
+    vres = caml_copy_string("");
+  else
+    vres = caml_copy_string(err);
+  CAMLreturn(vres);
 }
 
 CAMLprim value ml_ERR_reason_error_string(value ve) {
+  CAMLparam1(ve);
+  CAMLlocal1(vres);
   const char* err = ERR_reason_error_string(Unsigned_long_val(ve));
   if(err == NULL)
-    return caml_copy_string("");
-  return caml_copy_string(err);
+    vres = caml_copy_string("");
+  else
+    vres = caml_copy_string(err);
+  CAMLreturn(vres);
 }
 
 #define tls_SSLv2_method           0
@@ -174,13 +185,15 @@ static SSL_METHOD* get_method(int method) {
 }
 
 CAMLprim value ml_SSL_CTX_new(value vmethod) {
+  CAMLparam1(vmethod);
+  CAMLlocal1(vres);
   SSL_CTX* ssl_ctx = SSL_CTX_new(get_method(Int_val(vmethod)));
   if(ssl_ctx == NULL) {
     mltls_error("SSL_CTX_new", "Unable to create SSL_CTX structure");
   }
-  value vres = caml_alloc_custom(&ssl_ctx_ops, sizeof(SSL_CTX*), 0, 1);
+  vres = caml_alloc_custom(&ssl_ctx_ops, sizeof(SSL_CTX*), 0, 1);
   SSL_CTX_val(vres) = ssl_ctx;
-  return(vres);
+  CAMLreturn(vres);
 }
 
 static int get_file_type(int type) {
@@ -208,13 +221,15 @@ CAMLprim value ml_SSL_CTX_use_PrivateKey_file(value vctx,
 }
 
 CAMLprim value ml_SSL_new(value vctx) {
+  CAMLparam1(vctx);
+  CAMLlocal1(vres);
   SSL* ssl = SSL_new(SSL_CTX_val(vctx));
   if(ssl == NULL) {
     mltls_error("SSL_new", "Unable to create SSL structure");
   }
-  value vres = caml_alloc_custom(&ssl_ops, sizeof(SSL*), 0, 1);
+  vres = caml_alloc_custom(&ssl_ops, sizeof(SSL*), 0, 1);
   SSL_val(vres) = ssl;
-  return vres;
+  CAMLreturn(vres);
 }
 
 ML_1(SSL_set_accept_state, SSL_val, Unit)
@@ -255,7 +270,8 @@ CAMLprim value ml_SSL_do_handshake(value vssl) {
 ML_2(SSL_get_error, SSL_val, Int_val, Val_int)
 
 CAMLprim value ml_SSL_read(value vssl, 
-                                value vbuf, value voffs, value vnum) {
+                           value vbuf, value voffs, value vnum) {
+  CAMLparam4(vssl, vbuf, voffs, vnum);
   long offs = Long_val(voffs);
   long len = Long_val(vnum);
   char* tmpbuf;
@@ -268,11 +284,12 @@ CAMLprim value ml_SSL_read(value vssl,
   caml_leave_blocking_section();
   memcpy(&Byte(vbuf, offs), tmpbuf, ret);
   caml_stat_free(tmpbuf);
-  return Val_int(ret);
+  CAMLreturn(Val_int(ret));
 }
 
 CAMLprim value ml_SSL_write(value vssl, 
                                  value vbuf, value voffs, value vnum) {
+  CAMLparam4(vssl, vbuf, voffs, vnum);
   long offs = Long_val(voffs);
   long len = Long_val(vnum);
   char* tmpbuf;
@@ -285,7 +302,7 @@ CAMLprim value ml_SSL_write(value vssl,
   ret = SSL_write(SSL_val(vssl), tmpbuf, len);
   caml_leave_blocking_section();
   caml_stat_free(tmpbuf);
-  return Val_int(ret);
+  CAMLreturn(Val_int(ret));
 }
 
 ML_1(SSL_shutdown, SSL_val, Val_int)
@@ -374,6 +391,7 @@ ML_1(BIO_pending, BIO_val, Val_int)
 
 CAMLprim value ml_BIO_write(value vbio, 
                                  value vbuf, value voffs, value vlen) {
+  CAMLparam4(vbio, vbuf, voffs, vlen);
   long offs = Long_val(voffs);
   long len = Long_val(vlen);
   char* tmpbuf;
@@ -387,11 +405,12 @@ CAMLprim value ml_BIO_write(value vbio,
   ret = BIO_write(BIO_val(vbio), tmpbuf, len);
   caml_leave_blocking_section();
   caml_stat_free(tmpbuf);
-  return Val_int(ret);
+  CAMLreturn(Val_int(ret));
 }
 
 CAMLprim value ml_BIO_read(value vbio, 
-				value vbuf, value voffs, value vlen) {
+                           value vbuf, value voffs, value vlen) {
+  CAMLparam4(vbio, vbuf, voffs, vlen);
   long len = Int_val(vlen);
   long offs = Long_val(voffs);
   char* tmpbuf;
@@ -405,5 +424,5 @@ CAMLprim value ml_BIO_read(value vbio,
   caml_leave_blocking_section();
   memcpy(&Byte(vbuf, offs), tmpbuf, ret);;
   caml_stat_free(tmpbuf);
-  return Val_int(ret);
+  CAMLreturn(Val_int(ret));
 }
