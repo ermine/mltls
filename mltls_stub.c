@@ -163,7 +163,7 @@ CAMLprim value ml_ERR_reason_error_string(value ve) {
 #define tls_SSLv23_server_method   7
 #define tls_SSLv23_client_method   8
 
-static SSL_METHOD* get_method(int method) {
+static const SSL_METHOD* get_method(int method) {
   switch(method) {
   case tls_SSLv3_method:         return SSLv3_method();
   case tls_SSLv3_server_method:  return SSLv3_server_method();
@@ -331,7 +331,7 @@ ML_1(SSL_clear, SSL_val, Unit)
 ML_1(SSL_CTX_check_private_key, SSL_CTX_val, Val_int)
 ML_1(SSL_CTX_set_default_verify_paths, SSL_CTX_val, Val_int)
 
-// ML_1(SSL_get_perr_certificate, SSL_val, alloc_X509)
+/* ML_1(SSL_get_perr_certificate, SSL_val, alloc_X509) */
 CAMLprim value ml_SSL_get_peer_certificate(value vssl) {
   CAMLparam1(vssl);
   CAMLlocal1(vres);

@@ -1,12 +1,12 @@
 # OASIS_START
-# DO NOT EDIT (digest: 8f8f475683a40b8104b7bebea62c7a2f)
+# DO NOT EDIT (digest: a502b054196ea7cdd30d4b74494f57bb)
 # Library mltls
 <mltls.{cma,cmxa}>: oasis_library_mltls_cclib
-"libmltls.lib": oasis_library_mltls_cclib
-"dllmltls.dll": oasis_library_mltls_cclib
-"libmltls.a": oasis_library_mltls_cclib
-"dllmltls.so": oasis_library_mltls_cclib
-<mltls.{cma,cmxa}>: use_libmltls
+"libmltls_stubs.lib": oasis_library_mltls_cclib
+"dllmltls_stubs.dll": oasis_library_mltls_cclib
+"libmltls_stubs.a": oasis_library_mltls_cclib
+"dllmltls_stubs.so": oasis_library_mltls_cclib
+<mltls.{cma,cmxa}>: stubs_mltls
 # Executable test
 <tests/state_machine.{native,byte}>: use_mltls
 <tests/state_machine.{native,byte}>: pkg_unix

@@ -16,7 +16,7 @@ Library mltls
   Path:       .
   Modules:    Mltls
   CSources:   mltls_stub.c, wrapper.h
-  CClib:      -lssl
+  CClib:      -lssl -lcrypto
 
 # [FORGE#860]
 Executable test
