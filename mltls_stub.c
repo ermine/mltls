@@ -163,7 +163,7 @@ CAMLprim value ml_ERR_reason_error_string(value ve) {
 #define tls_SSLv23_server_method   7
 #define tls_SSLv23_client_method   8
 
-static const SSL_METHOD* get_method(int method) {
+static SSL_METHOD* get_method(int method) {
   switch(method) {
   case tls_SSLv3_method:         return SSLv3_method();
   case tls_SSLv3_server_method:  return SSLv3_server_method();
