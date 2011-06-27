@@ -153,24 +153,18 @@ CAMLprim value ml_ERR_reason_error_string(value ve) {
   CAMLreturn(vres);
 }
 
-#define tls_SSLv2_method           0
-#define tls_SSLv2_server_method    1
-#define tls_SSLv2_client_method    2
-#define tls_SSLv3_method           3
-#define tls_SSLv3_server_method    4
-#define tls_SSLv3_client_method    5
-#define tls_TLSv1_method           6
-#define tls_TLSv1_server_method    7
-#define tls_TLSv1_client_method    8
-#define tls_SSLv23_method          9
-#define tls_SSLv23_server_method   10
-#define tls_SSLv23_client_method   11
+#define tls_SSLv3_method           0
+#define tls_SSLv3_server_method    1
+#define tls_SSLv3_client_method    2
+#define tls_TLSv1_method           3
+#define tls_TLSv1_server_method    4
+#define tls_TLSv1_client_method    5
+#define tls_SSLv23_method          6
+#define tls_SSLv23_server_method   7
+#define tls_SSLv23_client_method   8
 
 static SSL_METHOD* get_method(int method) {
   switch(method) {
-  case tls_SSLv2_method:         return SSLv2_method();
-  case tls_SSLv2_server_method:  return SSLv2_server_method();
-  case tls_SSLv2_client_method:  return SSLv2_client_method();
   case tls_SSLv3_method:         return SSLv3_method();
   case tls_SSLv3_server_method:  return SSLv3_server_method();
   case tls_SSLv3_client_method:  return SSLv3_client_method();

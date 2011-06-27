@@ -27,9 +27,12 @@ external tls_ERR_reason_error_string : int32 -> string
   = "ml_ERR_reason_error_string"
 
 type tls_method =
+(*
+  (* SSLv2 is insecure and openssl since 1.0.0 disables this method by default *)
   | SSLv2_method
   | SSLv2_server_method
   | SSLv2_client_method
+*)
   | SSLv3_method
   | SSLv3_server_method
   | SSLv3_client_method
