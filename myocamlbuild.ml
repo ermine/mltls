@@ -1,7 +1,7 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: a619291bd583fa38090ad1d6e7f2cb83) *)
+(* DO NOT EDIT (digest: 235d630a01c327ff889e4f520e624948) *)
 module OASISGettext = struct
-# 21 "src/oasis/OASISGettext.ml"
+# 21 "/usr/home/ermine/projects/ocaml/src/oasis/src/oasis/OASISGettext.ml"
   
   let ns_ str = 
     str
@@ -24,7 +24,7 @@ module OASISGettext = struct
 end
 
 module OASISExpr = struct
-# 21 "src/oasis/OASISExpr.ml"
+# 21 "/usr/home/ermine/projects/ocaml/src/oasis/src/oasis/OASISExpr.ml"
   
   
   
@@ -115,7 +115,7 @@ end
 
 
 module BaseEnvLight = struct
-# 21 "src/base/BaseEnvLight.ml"
+# 21 "/usr/home/ermine/projects/ocaml/src/oasis/src/base/BaseEnvLight.ml"
   
   module MapString = Map.Make(String)
   
@@ -212,7 +212,7 @@ end
 
 
 module MyOCamlbuildFindlib = struct
-# 21 "src/plugins/ocamlbuild/MyOCamlbuildFindlib.ml"
+# 21 "/usr/home/ermine/projects/ocaml/src/oasis/src/plugins/ocamlbuild/MyOCamlbuildFindlib.ml"
   
   (** OCamlbuild extension, copied from 
     * http://brion.inria.fr/gallium/index.php/Using_ocamlfind_with_ocamlbuild
@@ -274,13 +274,12 @@ module MyOCamlbuildFindlib = struct
           Options.ocamldep   := ocamlfind & A"ocamldep";
           Options.ocamldoc   := ocamlfind & A"ocamldoc";
           Options.ocamlmktop := ocamlfind & A"ocamlmktop"
-  
+                                  
       | After_rules ->
-  
-          (* When link product is an OCaml program/toplevel, one should use -linkpkg *)
+          
+          (* When one link an OCaml library/binary/package, one should use -linkpkg *)
           flag ["ocaml"; "link"; "program"] & A"-linkpkg";
-          flag ["ocaml"; "link"; "toplevel"] & A"-linkpkg";
-  
+          
           (* For each ocamlfind package one inject the -package option when
            * compiling, computing dependencies, generating documentation and
            * linking. *)
@@ -321,7 +320,7 @@ module MyOCamlbuildFindlib = struct
 end
 
 module MyOCamlbuildBase = struct
-# 21 "src/plugins/ocamlbuild/MyOCamlbuildBase.ml"
+# 21 "/usr/home/ermine/projects/ocaml/src/oasis/src/plugins/ocamlbuild/MyOCamlbuildBase.ml"
   
   (** Base functions for writing myocamlbuild.ml
       @author Sylvain Le Gall
@@ -336,7 +335,7 @@ module MyOCamlbuildBase = struct
   type name = string 
   type tag = string 
   
-# 55 "src/plugins/ocamlbuild/MyOCamlbuildBase.ml"
+# 55 "/usr/home/ermine/projects/ocaml/src/oasis/src/plugins/ocamlbuild/MyOCamlbuildBase.ml"
   
   type t =
       {
@@ -402,20 +401,20 @@ module MyOCamlbuildBase = struct
             List.iter
               (fun (lib, dir, headers) ->
                    (* Handle C part of library *)
-                   flag ["link"; "library"; "ocaml"; "byte"; "stubs_"^lib]
-                     (S[A"-dllib"; A("-l"^lib^"_stubs"); A"-cclib"; A("-l"^lib^"_stubs")]);
+                   flag ["link"; "library"; "ocaml"; "byte"; "use_lib"^lib]
+                     (S[A"-dllib"; A("-l"^lib); A"-cclib"; A("-l"^lib)]);
   
-                   flag ["link"; "library"; "ocaml"; "native"; "stubs_"^lib]
-                     (S[A"-cclib"; A("-l"^lib^"_stubs")]);
-  
-                   flag ["link"; "program"; "ocaml"; "byte"; "stubs_"^lib]
-                     (S[A"-dllib"; A("dll"^lib^"_stubs")]);
+                   flag ["link"; "library"; "ocaml"; "native"; "use_lib"^lib]
+                     (S[A"-cclib"; A("-l"^lib)]);
+                        
+                   flag ["link"; "program"; "ocaml"; "byte"; "use_lib"^lib]
+                     (S[A"-dllib"; A("dll"^lib)]);
   
                    (* When ocaml link something that use the C library, then one
                       need that file to be up to date.
                     *)
-                   dep  ["link"; "ocaml"; "stubs_"^lib] 
-                     [dir/"lib"^lib^"_stubs."^(!Options.ext_lib)];
+                   dep  ["link"; "ocaml"; "use_lib"^lib] 
+                     [dir/"lib"^lib^"."^(!Options.ext_lib)];
   
                    (* TODO: be more specific about what depends on headers *)
                    (* Depends on .h files *)
@@ -452,16 +451,16 @@ end
 open Ocamlbuild_plugin;;
 let package_default =
   {
-     MyOCamlbuildBase.lib_ocaml = [("mltls", [])];
-     lib_c = [("mltls", ".", ["wrapper.h"])];
+     MyOCamlbuildBase.lib_ocaml = [("erm_tls", [])];
+     lib_c = [("erm_tls", ".", ["wrapper.h"])];
      flags =
        [
-          (["oasis_library_mltls_cclib"; "link"],
+          (["oasis_library_erm_tls_cclib"; "link"],
             [
                (OASISExpr.EBool true,
                  S [A "-cclib"; A "-lssl"; A "-cclib"; A "-lcrypto"])
             ]);
-          (["oasis_library_mltls_cclib"; "ocamlmklib"; "c"],
+          (["oasis_library_erm_tls_cclib"; "ocamlmklib"; "c"],
             [(OASISExpr.EBool true, S [A "-lssl"; A "-lcrypto"])])
        ];
      }

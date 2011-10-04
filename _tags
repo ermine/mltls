@@ -1,16 +1,16 @@
 # OASIS_START
-# DO NOT EDIT (digest: a502b054196ea7cdd30d4b74494f57bb)
-# Library mltls
-<mltls.{cma,cmxa}>: oasis_library_mltls_cclib
-"libmltls_stubs.lib": oasis_library_mltls_cclib
-"dllmltls_stubs.dll": oasis_library_mltls_cclib
-"libmltls_stubs.a": oasis_library_mltls_cclib
-"dllmltls_stubs.so": oasis_library_mltls_cclib
-<mltls.{cma,cmxa}>: stubs_mltls
+# DO NOT EDIT (digest: 3cc2e972d0dd7c247f335b2193fd45c3)
+# Library erm_tls
+<erm_tls.{cma,cmxa}>: oasis_library_erm_tls_cclib
+"liberm_tls.lib": oasis_library_erm_tls_cclib
+"dllerm_tls.dll": oasis_library_erm_tls_cclib
+"liberm_tls.a": oasis_library_erm_tls_cclib
+"dllerm_tls.so": oasis_library_erm_tls_cclib
+<erm_tls.{cma,cmxa}>: use_liberm_tls
 # Executable test
-<tests/state_machine.{native,byte}>: use_mltls
+<tests/state_machine.{native,byte}>: use_erm_tls
 <tests/state_machine.{native,byte}>: pkg_unix
-<tests/*.ml{,i}>: use_mltls
+<tests/*.ml{,i}>: use_erm_tls
 <tests/*.ml{,i}>: pkg_unix
 <tests/state_machine.{native,byte}>: custom
 # OASIS_STOP

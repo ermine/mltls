@@ -1,5 +1,5 @@
 OASISFormat: 0.2
-Name:        mltls
+Name:        erm_tls
 Version:     0.1
 Authors:     Anastasia Gornostaeva
 Copyrights:  (C) 2006 Anastasia Gornostaeva
@@ -12,7 +12,7 @@ Synopsis:    OCaml bindings to SSL/TLS
 Description:
   Bindings to OpenSSL library.
 
-Library mltls
+Library erm_tls
   Path:       .
   Modules:    Mltls
   CSources:   mltls_stub.c, wrapper.h
@@ -25,7 +25,7 @@ Executable test
   Custom: true # [FORGE#834]
   CompiledObject: best
   MainIs: state_machine.ml
-  BuildDepends: mltls, unix
+  BuildDepends: erm_tls, unix
 
 Document api
   Title:      API reference
@@ -33,7 +33,7 @@ Document api
   Type: ocamlbuild (0.2)
   BuildTools: ocamldoc
   XOcamlbuildPath: .
-  XOcamlbuildLibraries: mltls
+  XOcamlbuildLibraries: erm_tls
 
 SourceRepository github
   Type:     git
