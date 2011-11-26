@@ -1,5 +1,5 @@
 /*
- * (c) 2007-2010 Anastasia Gornostaeva <ermine@ermine.pp.ru>
+ * (c) 2007-2010 Anastasia Gornostaeva
  */
 
 #include <caml/alloc.h>
