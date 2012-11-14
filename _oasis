@@ -1,11 +1,11 @@
-OASISFormat: 0.2
+OASISFormat: 0.3
 Name:        erm_tls
 Version:     0.1
 Authors:     Anastasia Gornostaeva
 Copyrights:  (C) 2006 Anastasia Gornostaeva
 License:     BSD3
 LicenseFile: LICENCE
-Plugins:     DevFiles (0.2), META (0.2)
+Plugins:     DevFiles (0.3), META (0.3)
 BuildTools:  ocamlbuild
 
 Synopsis:    OCaml bindings to SSL/TLS

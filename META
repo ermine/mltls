@@ -1,9 +1,11 @@
 # OASIS_START
-# DO NOT EDIT (digest: 7a2866b697e2004fea465db456b39722)
+# DO NOT EDIT (digest: a89a1c1c88b7fcc6c8cec55dc577782e)
 version = "0.1"
 description = "OCaml bindings to SSL/TLS"
 archive(byte) = "erm_tls.cma"
+archive(byte, plugin) = "erm_tls.cma"
 archive(native) = "erm_tls.cmxa"
+archive(native, plugin) = "erm_tls.cmxs"
 exists_if = "erm_tls.cma"
 # OASIS_STOP
 

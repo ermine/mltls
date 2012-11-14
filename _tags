@@ -1,12 +1,26 @@
 # OASIS_START
-# DO NOT EDIT (digest: 3cc2e972d0dd7c247f335b2193fd45c3)
+# DO NOT EDIT (digest: d668582e09b3978bbc2230590bc90bf5)
+# Ignore VCS directories, you can use the same kind of rule outside 
+# OASIS_START/STOP if you want to exclude directories that contains 
+# useless stuff for the build process
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
 # Library erm_tls
+"erm_tls.cmxs": use_erm_tls
 <erm_tls.{cma,cmxa}>: oasis_library_erm_tls_cclib
-"liberm_tls.lib": oasis_library_erm_tls_cclib
-"dllerm_tls.dll": oasis_library_erm_tls_cclib
-"liberm_tls.a": oasis_library_erm_tls_cclib
-"dllerm_tls.so": oasis_library_erm_tls_cclib
-<erm_tls.{cma,cmxa}>: use_liberm_tls
+"liberm_tls_stubs.lib": oasis_library_erm_tls_cclib
+"dllerm_tls_stubs.dll": oasis_library_erm_tls_cclib
+"liberm_tls_stubs.a": oasis_library_erm_tls_cclib
+"dllerm_tls_stubs.so": oasis_library_erm_tls_cclib
+<erm_tls.{cma,cmxa}>: use_liberm_tls_stubs
 # Executable test
 <tests/state_machine.{native,byte}>: use_erm_tls
 <tests/state_machine.{native,byte}>: pkg_unix
